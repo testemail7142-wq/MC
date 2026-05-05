@@ -1,0 +1,16 @@
+import random
+
+ip_pool = ["192.168.1." + str(i) for i in range(2, 50)]
+assigned_ips = {}
+
+def dhcp_request(client_id):
+    if client_id in assigned_ips:
+        return assigned_ips[client_id]
+    ip = random.choice(ip_pool)
+    ip_pool.remove(ip)
+    assigned_ips[client_id] = ip
+    return ip
+
+# Simulate clients
+for client in range(1, 6):
+    print(f"Client {client} assigned IP: ", dhcp_request(client))
