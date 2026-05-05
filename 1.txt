@@ -1,0 +1,48 @@
+import numpy as np
+rc=[]
+print("Enter the data bits :")
+d1=int(input("Enter D1 :"))
+d2=int(input("Enter D2 :"))
+d3=int(input("Enter D3 :"))
+d4=int(input("Enter D4 :"))
+# Example predefined code sequences for C1, C2, C3, C4
+# Replace these with your actual CDMA code sequences
+c1 = np.array([1, -1, 1, -1])
+c2 = np.array([1, 1, -1, -1])
+c3 = np.array([1, -1, -1, 1])
+c4 = np.array([-1, 1, 1, -1])
+r1=np.multiply(c1,d1)
+r2=np.multiply(c2,d2)
+r3=np.multiply(c3,d3)
+r4=np.multiply(c4,d4)
+resultant_channel=r1+r2+r3+r4;
+print("resultant_channel:", resultant_channel)
+# Example resultant channel (replace with actual received signal)
+#resultant_channel = np.array([2, 0, 0, -2])
+try:
+# Get user input
+Channel = int(input("Enter the station to listen for C1=1, C2=2, C3=3, C4=4: "))
+# Select the reference code based on user choice
+if Channel == 1:
+rc = c1
+elif Channel == 2:
+rc = c2
+elif Channel == 3:
+rc = c3
+elif Channel == 4:
+rc = c4
+else:
+raise ValueError("Invalid channel number. Please enter 1, 2, 3, or 4.")
+# Multiply element-wise
+inner_product = np.multiply(resultant_channel, rc)
+print("Inner Product:", inner_product)
+# Sum and normalize to get the data bit
+res1 = sum(inner_product)
+if res1>0:
+print("Data bit that was sent:", 1)
+else:
+print("DaData bit that was sent:", -1) # Usually ±1 in CDMA
+except ValueError as e:
+print("Error:", e)
+except Exception as e:
+print("Unexpected error:", e)
