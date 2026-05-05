@@ -1,0 +1,69 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+
+# Parameters
+N = int(1e6)  # number of bits
+Eb_N0_dB = np.arange(0, 61, 5)  # Eb/N0 range in dB
+
+# Transmitter
+np.random.seed(100)
+ip = np.random.rand(N) > 0.5
+s = 2*ip - 1  # BPSK symbols
+
+# --- Plot 1: BPSK in AWGN ---
+simBer_awgn = []
+
+n_awgn = (np.random.randn(N) + 1j*np.random.randn(N)) / np.sqrt(2)
+
+for EbN0 in Eb_N0_dB:
+    y = s + 10**(-EbN0/20) * n_awgn
+    ipHat = np.real(y) > 0
+    nErr = np.sum(ip != ipHat)
+    simBer_awgn.append(nErr / N)
+
+def Q(x):
+    return 0.5 * (1 - math.erf(x / math.sqrt(2)))
+
+theoryBer_awgn = [Q(np.sqrt(2 * 10**(EbN0/10))) for EbN0 in Eb_N0_dB]
+
+plt.figure()
+plt.semilogy(Eb_N0_dB, theoryBer_awgn, 'b.-', label='Theory (AWGN)')
+plt.semilogy(Eb_N0_dB, simBer_awgn, 'mx-', label='Simulation (AWGN)')
+plt.axis([-3, 20, 1e-5, 0.5])
+plt.grid(True, which='both')
+plt.legend()
+plt.xlabel('Eb/No (dB)')
+plt.ylabel('Bit Error Rate')
+plt.title('Bit error probability curve for BPSK modulation (AWGN)')
+
+# --- Plot 2: BPSK in Rayleigh fading ---
+simBer_rayleigh = []
+
+for EbN0 in Eb_N0_dB:
+    h = (np.random.randn(N) + 1j*np.random.randn(N)) / np.sqrt(2)
+    snr_linear = 10**(EbN0/10)
+    n = (np.random.randn(N) + 1j*np.random.randn(N)) / np.sqrt(2*snr_linear)
+    y = h * s + n
+    y_eq = y / h
+    ipHat = np.real(y_eq) > 0
+    nErr = np.sum(ip != ipHat)
+    simBer_rayleigh.append(nErr / N)
+
+def theory_rayleigh(EbN0_dB):
+    gamma = 10**(EbN0_dB/10)
+    return 0.5 * (1 - np.sqrt(gamma / (1 + gamma)))
+
+theoryBer_rayleigh = [theory_rayleigh(EbN0) for EbN0 in Eb_N0_dB]
+
+plt.figure()
+plt.semilogy(Eb_N0_dB, theoryBer_rayleigh, 'b.-', label='Theory (Rayleigh)')
+plt.semilogy(Eb_N0_dB, simBer_rayleigh, 'mx-', label='Simulation (Rayleigh)')
+plt.axis([-3, 20, 1e-5, 0.5])
+plt.grid(True, which='both')
+plt.legend()
+plt.xlabel('Eb/No (dB)')
+plt.ylabel('Bit Error Rate')
+plt.title('BER Performance of BPSK over Rayleigh Fading Channel')
+
+plt.show()
