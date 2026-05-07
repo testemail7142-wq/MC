@@ -1,21 +1,15 @@
 import socket
 
-# Create socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connect to server (use server IP)
-client_socket.connect(("10.10.227.227", 5000))
+client_socket.connect(("127.0.0.1", 5050))
 
-# Open file to send
-file = open("sample.txt", "rb")
+with open("sample.txt", "rb") as file:
+    while True:
+        data = file.read(1024)
+        if not data:
+            break
+        client_socket.sendall(data)
 
-# Send file data
-while True:
-    data = file.read(1024)
-    if not data:
-        break
-    client_socket.send(data)
-
-file.close()
 client_socket.close()
 print("File sent successfully!")
