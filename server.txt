@@ -1,26 +1,22 @@
 import socket
 
-# Bind IP and Port
-server_socket.bind(("0.0.0.0", 5000))
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Listen for connections
+server_socket.bind(("0.0.0.0", 5050))
+
 server_socket.listen(1)
 print("Server is waiting for connection...")
 
-# Accept connection
 conn, addr = server_socket.accept()
 print("Connected to:", addr)
 
-# Open file to write
-file = open("received_file.txt", "wb")
+with open("received_file.txt", "wb") as file:
+    while True:
+        data = conn.recv(1024)
+        if not data:
+            break
+        file.write(data)
 
-# Receive data
-while True:
-    data = conn.recv(1024)
-    if not data:
-        break
-    file.write(data)
-
-file.close()
 conn.close()
+server_socket.close()
 print("File received successfully!")
